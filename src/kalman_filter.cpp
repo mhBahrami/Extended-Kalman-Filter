@@ -9,12 +9,22 @@ using Eigen::VectorXd;
 // Please note that the Eigen library does not initialize 
 // VectorXd or MatrixXd objects with zeros upon creation.
 
-KalmanFilter::KalmanFilter() = default;
+KalmanFilter::KalmanFilter()
+{
+  this->Init(
+      VectorXd::Constant(4, 0.0),    // x_in
+      MatrixXd::Constant(4, 4, 0.0), // P_in
+      MatrixXd::Constant(4, 4, 0.0), // F_in
+      MatrixXd::Constant(3, 4, 0.0), // H_in
+      MatrixXd::Constant(3, 3, 0.0), // R_in
+      MatrixXd::Constant(4, 4, 0.0)  // Q_in
+  );
+}
 
 KalmanFilter::~KalmanFilter() = default;
 
-void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
-                        MatrixXd &H_in, MatrixXd &R_in, MatrixXd &Q_in) {
+void KalmanFilter::Init(const VectorXd &x_in, const MatrixXd &P_in, const MatrixXd &F_in,
+                        const MatrixXd &H_in, const MatrixXd &R_in, const MatrixXd &Q_in) {
   x_ = x_in;
   P_ = P_in;
   F_ = F_in;
@@ -25,7 +35,6 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 
 void KalmanFilter::Predict() {
   /**
-  TODO:
   * predict the state
   * x′ = F∗x + noise (noise = 0)
   */
@@ -36,7 +45,6 @@ void KalmanFilter::Predict() {
 
 void KalmanFilter::Update(const VectorXd &z) {
   /**
-  TODO:
   * update the state by using Kalman Filter equations
   */
   VectorXd z_pred = H_ * x_;
@@ -46,19 +54,18 @@ void KalmanFilter::Update(const VectorXd &z) {
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
   /**
-  TODO:
   * update the state by using Extended Kalman Filter equations
   */
   double rho = sqrt(x_(0) * x_(0) + x_(1) * x_(1));
   double phi = atan2(x_(1), x_(0));
   double rho_dot;
-//  rho_dot = (x_(0) * x_(2) + x_(1) * x_(3)) / rho;
+  rho_dot = (x_(0) * x_(2) + x_(1) * x_(3)) / rho;
 
-  if (fabs(rho) < THRESHOLD) {
-      rho_dot = THRESHOLD;
-  } else {
-      rho_dot = (x_(0) * x_(2) + x_(1) * x_(3)) / rho;
-  }
+//  if (fabs(rho) < THRESHOLD) {
+//      rho_dot = THRESHOLD;
+//  } else {
+//      rho_dot = (x_(0) * x_(2) + x_(1) * x_(3)) / rho;
+//  }
   VectorXd z_pred(3);
   z_pred << rho, phi, rho_dot;
   VectorXd y = z - z_pred;
